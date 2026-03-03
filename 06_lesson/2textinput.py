@@ -1,27 +1,33 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-import time
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 driver = webdriver.Chrome()
 
 try:
     driver.get("http://uitestingplayground.com/textinput")
-    time.sleep(2)
-
-    input_field = driver.find_element(By.CSS_SELECTOR, "#newButtonName")
+    
+    # Явное ожидание появления поля ввода
+    input_field = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "#newButtonName"))
+    )
     input_field.send_keys("SkyPro")
-    time.sleep(1)
 
-    button = driver.find_element(By.CSS_SELECTOR, "#updatingButton")
+    # Явное ожидание, что кнопка станет кликабельной
+    button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "#updatingButton"))
+    )
     button.click()
-    time.sleep(1)
 
-    updated_button_text = driver.find_element(
-        By.CSS_SELECTOR, "#updatingButton"
-    ).text
-    print(updated_button_text)
-
-    time.sleep(2)
+    # Явное ожидание, что текст кнопки обновится
+    updated_button = WebDriverWait(driver, 10).until(
+        EC.text_to_be_present_in_element((By.CSS_SELECTOR, "#updatingButton"), "SkyPro")
+    )
+    
+    # Получаем и выводим текст кнопки
+    button_text = driver.find_element(By.CSS_SELECTOR, "#updatingButton").text
+    print(button_text)
 
 finally:
     driver.quit()
