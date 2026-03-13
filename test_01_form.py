@@ -8,23 +8,24 @@ from selenium.webdriver.edge.service import Service
 
 @pytest.fixture
 def driver():
-    service = Service(r"C:\Users\Александра\Desktop\06K_lesson\msedgedriver.exe")
+    service = Service(
+        r"C:\Users\Александра\Desktop\06K_lesson\msedgedriver.exe"
+    )
     driver = webdriver.Edge(service=service)
     driver.maximize_window()
     yield driver
     driver.quit()
 
 
-def test_form(driver):
-    # Шаг 1: Открыть страницу
-    driver.get("https://bonigarcia.dev/selenium-webdriver-java/data-types.html")
-    
-    # Шаг 2: Дождаться загрузки формы
-    WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.TAG_NAME, "form"))
+def test_form_submission(driver):
+    driver.get(
+        "https://bonigarcia.dev/selenium-webdriver-java/data-types.html"
     )
-    
-    # Шаг 3: Заполнить форму
+
+    WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.NAME, "first-name"))
+    )
+
     driver.find_element(By.NAME, "first-name").send_keys("Иван")
     driver.find_element(By.NAME, "last-name").send_keys("Петров")
     driver.find_element(By.NAME, "address").send_keys("Ленина, 55-3")
@@ -35,24 +36,29 @@ def test_form(driver):
     driver.find_element(By.NAME, "country").send_keys("Россия")
     driver.find_element(By.NAME, "job-position").send_keys("QA")
     driver.find_element(By.NAME, "company").send_keys("SkyPro")
-    
-    # Шаг 4: Нажать кнопку
-    driver.find_element(By.XPATH, "//button[@type='submit']").click()
-    
-    # Шаг 5: Дождаться результатов
+
+    submit = driver.find_element(By.XPATH, "//button[@type='submit']")
+    submit.click()
+
     WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.CLASS_NAME, "alert"))
     )
-    
-    # Шаг 6: Проверить Zip code (красный)
+
     zip_code = driver.find_element(By.ID, "zip-code")
     assert "alert-danger" in zip_code.get_attribute("class")
-    
-    # Шаг 7: Проверить остальные поля (зеленые)
-    fields = ["first-name", "last-name", "address", "e-mail", 
-              "phone", "city", "country", "job-position", "company"]
-    
+
+    fields = [
+        "first-name",
+        "last-name",
+        "address",
+        "e-mail",
+        "phone",
+        "city",
+        "country",
+        "job-position",
+        "company"
+    ]
+
     for field_id in fields:
         field = driver.find_element(By.ID, field_id)
         assert "alert-success" in field.get_attribute("class")
-        
